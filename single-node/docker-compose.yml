@@ -1,5 +1,13 @@
 # Wazuh App Copyright (C) 2017, Wazuh Inc. (License GPLv2)
 services:
+  generator:
+    image: wazuh/wazuh-certs-generator:0.0.4
+    hostname: wazuh-certs-generator
+    volumes:
+      - ./config/wazuh_indexer_ssl_certs/:/certificates/
+      - ./config/certs.yml:/config/certs.yml
+    restart: no
+    
   wazuh.manager:
     image: wazuh/wazuh-manager:5.0.0-beta2
     hostname: wazuh.manager
@@ -49,6 +57,9 @@ services:
     hostname: wazuh.indexer
     container_name: single-node-wazuh.indexer
     restart: always
+    depends_on: 
+      generator: 
+        condition: service_completed_successfully
     ports:
       - "9200:9200"
     environment:
